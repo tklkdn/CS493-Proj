@@ -4,7 +4,7 @@ CS 493: Cloud Application Development
 
 Application URL/Account Creation or Login URL:
 
-[https://kodanit-cs-proj.appspot.com](https://kodanit-cd493-proj.appspot.com)
+[https://kodanit-cs493-proj.appspot.com](https://kodanit-cs493-proj.appspot.com)
 
 ## Data Model
 ### User
