@@ -30,8 +30,8 @@ module.exports = {
 	},
     OAUTH: {
         DOMAIN: "kodanit-cs493.us.auth0.com",
-        CLIENT_ID: "Qo7FdpF7gfCRijrivCZ9FiiPBeP9KLov",
-        CLIENT_SECRET: "xPVCHS52EhtCi0M1ELA8Ppsow0eo4MTAI_wB8cBC8BhQew4qSIQ3PpE0kGjU1AkB",
+        CLIENT_ID: "",
+        CLIENT_SECRET: "",
         CALLBACK_URL: "http://localhost:8080/oauth",
         RETURN_TO: "http://localhost:8080"
     }
