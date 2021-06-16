@@ -109,4 +109,58 @@ JSON
     }
     ]
 
+## Create a Playlist
+Allows you to create a new playlist. Requires a valid JWT token.
 
+    POST /playlists
+
+### Request
+##### Path Parameters
+None
+##### Request Body
+Required
+##### Request JSON Attributes
+|Name|Type|Description|Required?|
+|--|--|--|--|
+|name|String|The name of the playlist.|Yes|
+|description|String|The description of the playlist.|Yes|
+##### Request Body Example
+    {
+      "name": "Focus",
+      "type": "Music to listen to while studying"
+    }
+ - Double quote and backslash characters used within the name attribute or type attribute must be escaped with a backslash character.
+ - An attribute string may not contain more than 1500 characters.
+### Response
+##### Response Body Format
+JSON
+##### Response Statuses
+|Outcome|Status Code|Notes|
+|--|--|--|
+|Success|201 Created||
+|Failure|400 Bad Request|Any of the following reasons will cause the playlist to not be created, and 400 status code to be returned: If the request is missing either of the 2 required attributes; if there are any extraneous attributes; if there are more than 2 attributes; if the JSON syntax in the request is invalid; if the data type of the attribute is invalid; if an attribute string contains unescaped characters; and if an attribute string contains more than 1500 characters.|
+|Failure|401 Unauthorized|Attempting to create a new playlist with a missing or invalid token will return a 401 status code.|
+|Failure|406 Not Acceptable|If the client does not accept a valid content type, the playlist will not be created.|
+|Failure|415 Unsupported Media Type|If the client sends a request formatted with an invalid content type, the playlist will not be created.|
+##### Response Examples
+*Success*
+
+    Status: 201 Created
+    {
+      "id": "555555555",
+      "name": "Focus",
+      "type": "Music to listen to while studying",
+      "created": "5/26/2021, 10:00:00 PM",
+      "owner": "123456789",
+      "songs": [],
+      "self": "https://kodanit-cs493-proj.appspot.com/playlists/555555555"
+    }
+
+ - Datastore will automatically generate an ID and store it with the entity being created. The app will send back this value in the response body as shown in the example.
+ - The created attribute will be automatically timestamped on the date and time that the playlist is created.
+ - The songs attribute will be created automatically as an empty array. It will store any songs added to the playlist as objects.
+ - The owner attribute will be automatically set to the ID of the authenticated user who creates the playlist.
+ - The self attribute will contain the live link to the REST resource corresponding to this playlist. In other words, this is the URL to get this newly created playlist.
+
+## Get a Playlist
+Allows you to get an existing playlist. Requires a valid JWT token.
