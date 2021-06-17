@@ -1,10 +1,28 @@
-# Final Project: API Spec
+# Music Playlist: API Spec
 
-CS 493: Cloud Application Development
-
-Application URL/Account Creation or Login URL:
-
+CS 493: Cloud Application Development  
+Application URL/Account Creation or Login URL:  
 [https://kodanit-cs493-proj.appspot.com](https://kodanit-cs493-proj.appspot.com)
+
+## Index
+[Data Model](#data-model)  
+[Get a User](#get-a-user)  
+[List All Users](#list-all-users)  
+[Create a Playlist](#create-a-playlist)  
+[Get a Playlist](#get-a-playlist)  
+[List All Playlists](#list-all-playlists)  
+[Edit a Playlist - PUT](#edit-a-playlist---put)  
+[Edit a Playlist - PATCH](#edit-a-playlist---patch)  
+[Delete a Playlist](#delete-a-playlist)  
+[Create a Song](#create-a-song)  
+[Get a Song](#get-a-song)  
+[List All Songs](#list-all-songs)  
+[Edit a Song - PUT](#edit-a-song---put)  
+[Edit a Song - PATCH](#edit-a-song---patch)  
+[Delete a Song](#delete-a-song)  
+[Add a Song to a Playlist](#add-a-song-to-a-playlist)  
+[Remove a Song from a Playlist](#remove-a-song-from-a-playlist)  
+[Failure Response Reference](#failure-response-reference)  
 
 ## Data Model
 ### User
@@ -53,7 +71,7 @@ Allows you to get an existing user.
 ##### Path Parameters
 |Name|Type|Description|
 |--|--|--|
-|user_id|String|ID of the user. |
+|user_id|String|ID of the user|
 ##### Request Body
 None
 ### Response
@@ -64,17 +82,6 @@ JSON
 |--|--|--|
 |Success|200 OK||
 |Failure|404 Not Found|No item with this id exists|
-##### Response Examples
-*Success*
-
-    Status: 200 OK
-    {
-      "id": "123456789",
-      "name": "kodanit",
-      "oauth_id": "987654321",
-      "playlists": [],
-      "self": "https://kodanit-cs493-proj.appspot.com/users/123456789"
-    }
 
 ## List All Users
 Lists all users.
@@ -93,21 +100,6 @@ JSON
 |Outcome|Status Code|Notes|
 |--|--|--|
 |Success|200 OK||
-##### Response Examples
-
-    Status: 200 OK
-    [
-    {
-      "id": "123456789",
-      "name": "bonnie",
-      "self": "https://kodanit-cs493-proj.appspot.com/users/123456789"
-    },
-    {
-      "id": "987654321",
-      "name": "clyde",
-      "self": "https://kodanit-cs493-proj.appspot.com/users/987654321"
-    }
-    ]
 
 ## Create a Playlist
 Allows you to create a new playlist. Requires a valid JWT token.
@@ -119,6 +111,8 @@ Allows you to create a new playlist. Requires a valid JWT token.
 None
 ##### Request Body
 Required
+##### Request Body Format
+JSON
 ##### Request JSON Attributes
 |Name|Type|Description|Required?|
 |--|--|--|--|
@@ -142,25 +136,443 @@ JSON
 |Failure|401 Unauthorized|Attempting to create a new playlist with a missing or invalid token will return a 401 status code.|
 |Failure|406 Not Acceptable|If the client does not accept a valid content type, the playlist will not be created.|
 |Failure|415 Unsupported Media Type|If the client sends a request formatted with an invalid content type, the playlist will not be created.|
-##### Response Examples
-*Success*
-
-    Status: 201 Created
-    {
-      "id": "555555555",
-      "name": "Focus",
-      "type": "Music to listen to while studying",
-      "created": "5/26/2021, 10:00:00 PM",
-      "owner": "123456789",
-      "songs": [],
-      "self": "https://kodanit-cs493-proj.appspot.com/playlists/555555555"
-    }
 
  - Datastore will automatically generate an ID and store it with the entity being created. The app will send back this value in the response body as shown in the example.
- - The created attribute will be automatically timestamped on the date and time that the playlist is created.
- - The songs attribute will be created automatically as an empty array. It will store any songs added to the playlist as objects.
- - The owner attribute will be automatically set to the ID of the authenticated user who creates the playlist.
- - The self attribute will contain the live link to the REST resource corresponding to this playlist. In other words, this is the URL to get this newly created playlist.
+ - The `created` attribute will be automatically timestamped on the date and time that the playlist is created.
+ - The `songs` attribute will be created automatically as an empty array. It will store any songs added to the playlist as objects.
+ - The `owner` attribute will be automatically set to the ID of the authenticated user who creates the playlist.
+ - The `self` attribute will contain the live link to the REST resource corresponding to this playlist. In other words, this is the URL to get this newly created playlist.
 
 ## Get a Playlist
 Allows you to get an existing playlist. Requires a valid JWT token.
+
+    GET /playlists/:playlist_id
+
+### Request
+##### Path Parameters
+|Name|Type|Description|
+|--|--|--|
+|playlist_id|String|ID of the playlist|
+##### Request Body
+None
+### Response
+##### Response Body Format
+JSON
+##### Response Statuses
+|Outcome|Status Code|Notes|
+|--|--|--|
+|Success|200 OK||
+|Failure|404 Not Found|No playlist with this playlist_id exists|
+
+## List All Playlists
+Lists all playlists associated with a user in paginated format. Returns no more than 5 playlists per page. Requires a valid JWT token.
+
+    GET /playlists
+
+### Request
+##### Path Parameters
+None
+##### Request Body
+None
+### Response
+##### Response Body Format
+JSON
+##### Response Statuses
+|Outcome|Status Code|Notes|
+|--|--|--|
+|Success|200 OK||
+
+ - If there are more than 5 results, the response will include a next link that gets the next 5 results, unless there are no more pages of results left.
+ - The `total_items` property refers to the total number of playlists belonging to the user.
+
+## Edit a Playlist - PUT
+Allows you to edit a boat. All attributes specified below are required. Requires a valid JWT token.
+
+    PUT /playlists/:playlist_id
+
+### Request
+##### Path Parameters
+|Name|Type|Description|
+|--|--|--|
+|playlist_id|String|ID of the playlist|
+##### Request Body
+Required
+##### Request JSON Attributes
+|Name|Type|Description|Required?|
+|--|--|--|--|
+|name|String|The name of the playlist.|Yes|
+|description|String|The description of the playlist.|Yes|
+##### Request Body Example
+
+    {
+      "name": "Focus",
+      "type": "Music to listen to while juggling"
+    }
+
+### Response
+##### Response Body Format
+JSON
+##### Response Statuses
+|Outcome|Status Code|Notes|
+|--|--|--|
+|Success|200 OK||
+|Failure|400 Bad Request|Any of the following reasons will cause the playlist to not be modified, and 400 status code to be returned: If the request is missing either of the 2 required attributes; if there are any extraneous attributes; if there are more than 2 attributes; if the JSON syntax in the request is invalid; if the data type of the attribute is invalid; if an attribute string contains unescaped characters; and if an attribute string contains more than 1500 characters.|
+|Failure|401 Unauthorized|Attempting to edit a playlist with a missing or invalid token will return a 401 status code.|
+|Failure|403 Forbidden|User is not authorized to edit the playlist.|
+|Failure|404 Not Found|No playlist with this playlist_id exists.|
+|Failure|406 Not Acceptable|If the client does not accept a valid content type, the playlist will not be modified.|
+|Failure|415 Unsupported Media Type|If the client sends a request formatted with an invalid content type, the playlist will not be modified.|
+
+## Edit a Playlist - PATCH
+Allows you to edit a subset of attributes of a playlist. Any attributes unspecified in the request body will remain unchanged. Requires a valid JWT token.
+
+    PATCH /playlists/:playlist_id
+
+### Request
+##### Path Parameters
+|Name|Type|Description|
+|--|--|--|
+|playlist_id|String|ID of the playlist|
+##### Request Body
+Required
+##### Request JSON Attributes
+|Name|Type|Description|Required?|
+|--|--|--|--|
+|name|String|The name of the playlist.|No|
+|description|String|The description of the playlist.|No|
+##### Request Body Example
+
+    {
+      "type": "Music to listen to while juggling"
+    }
+
+### Response
+##### Response Body Format
+JSON
+##### Response Statuses
+|Outcome|Status Code|Notes|
+|--|--|--|
+|Success|200 OK||
+|Failure|400 Bad Request|Any of the following reasons will cause the playlist to not be modified, and 400 status code to be returned: If there are any extraneous attributes; if there are more than 2 attributes; if the JSON syntax in the request is invalid; if the data type of the attribute is invalid; if an attribute string contains unescaped characters; and if an attribute string contains more than 1500 characters.|
+|Failure|401 Unauthorized|Attempting to edit a playlist with a missing or invalid token will return a 401 status code.|
+|Failure|403 Forbidden|User is not authorized to edit the playlist.|
+|Failure|404 Not Found|No playlist with this playlist_id exists.|
+|Failure|406 Not Acceptable|If the client does not accept a valid content type, the playlist will not be modified.|
+|Failure|415 Unsupported Media Type|If the client sends a request formatted with an invalid content type, the playlist will not be modified.|
+
+## Delete a Playlist
+Allows you to delete a playlist. If there are songs added to the playlist, deleting the playlist will remove the playlist from all the songs. Requires a valid JWT token.
+
+    DELETE /playlists/:playlist_id
+
+### Request
+##### Path Parameters
+|Name|Type|Description|
+|--|--|--|
+|playlist_id|String|ID of the playlist|
+##### Request Body
+None
+### Response
+##### Response Body Format
+Success: No body
+Failure: JSON
+##### Response Statuses
+|Outcome|Status Code|Notes|
+|--|--|--|
+|Success|204 No Content||
+|Failure|404 Not Found|No playlist with this playlist_id exists.|
+
+## Create a Song
+Allows you to create a new song.
+
+    POST /songs
+
+### Request
+##### Path Parameters
+None
+##### Request Body
+Required
+##### Request Body Format
+JSON
+##### Request JSON Attributes
+|Name|Type|Description|Required?|
+|--|--|--|--|
+|title|String|The title of the song.|Yes|
+|artist|String|The artist of the song.|Yes|
+|length|Integer|The length of the song in seconds.|Yes|
+##### Request Body Example
+
+    {
+      "title": "Rapper’s Delight",
+      "artist": "The Sugarhill Gang",
+      "length": 875
+    }
+
+ - Double quote and backslash characters used within the name attribute or type attribute must be escaped with a backslash character.
+ - An attribute string may not contain more than 1500 characters.
+### Response
+##### Response Body Format
+JSON
+##### Response Statuses
+|Outcome|Status Code|Notes|
+|--|--|--|
+|Success|201 Created||
+|Failure|400 Bad Request|Any of the following reasons will cause the song to not be created, and 400 status code to be returned: If the request is missing any of the 3 required attributes; if there are any extraneous attributes; if there are more than 3 attributes; if the JSON syntax in the request is invalid; if the data type of the attribute is invalid; if an attribute string contains unescaped characters; and if an attribute string contains more than 1500 characters.|
+|Failure|406 Not Acceptable|If the client does not accept a valid content type, the playlist will not be created.|
+|Failure|415 Unsupported Media Type|If the client sends a request formatted with an invalid content type, the playlist will not be created.|
+
+ - Datastore will automatically generate an ID and store it with the entity being created. The app will send back this value in the response body as shown in the example.
+ - The playlists attribute will be created automatically as an empty array. It will store all the playlists that have added the song.
+ - The `self` attribute will contain the live link to the REST resource corresponding to this song. In other words, this is the URL to get this newly created song.
+
+## Get a Song
+Allows you to get an existing song.
+
+    GET /songs/:song_id
+
+### Request
+##### Path Parameters
+|Name|Type|Description|
+|--|--|--|
+|song_id|String|ID of the song|
+##### Request Body
+None
+### Response
+##### Response Body Format
+JSON
+##### Response Statuses
+|Outcome|Status Code|Notes|
+|--|--|--|
+|Success|200 OK||
+|Failure|404 Not Found|No song with this song_id exists|
+
+## List All Songs
+Lists all the songs in paginated format. Returns no more than 5 songs per page.
+
+    GET /songs
+
+### Request
+##### Path Parameters
+None
+##### Request Body
+None
+### Response
+##### Response Body Format
+JSON
+##### Response Statuses
+|Outcome|Status Code|Notes|
+|--|--|--|
+|Success|200 OK||
+
+ - If there are more than 5 results, the response will include a next link that gets the next 5 results, unless there are no more pages of results left.
+ - The `total_items` property refers to the total number of songs in the datastore.
+
+## Edit a Song - PUT
+Allows you to edit a song. All attributes specified below are required.
+
+    PUT /song/:song_id
+
+### Request
+##### Path Parameters
+|Name|Type|Description|
+|--|--|--|
+|song_id|String|ID of the song|
+##### Request Body
+Required
+##### Request JSON Attributes
+|Name|Type|Description|Required?|
+|--|--|--|--|
+|title|String|The title of the song.|Yes|
+|artist|String|The artist of the song.|Yes|
+|length|Integer|The length of the song in seconds.|Yes|
+##### Request Body Example
+
+    {
+      "title": "Song 3",
+      "artist": "Blur",
+      "length": 122
+    }
+
+### Response
+##### Response Body Format
+JSON
+##### Response Statuses
+|Outcome|Status Code|Notes|
+|--|--|--|
+|Success|200 OK||
+|Failure|400 Bad Request|Any of the following reasons will cause the song to not be modified, and 400 status code to be returned: If the request is missing any of the 3 required attributes; if there are any extraneous attributes; if there are more than 3 attributes; if the JSON syntax in the request is invalid; if the data type of the attribute is invalid; if an attribute string contains unescaped characters; and if an attribute string contains more than 1500 characters.|
+|Failure|404 Not Found|No song with this song_id exists.|
+|Failure|406 Not Acceptable|If the client does not accept a valid content type, the song will not be modified.|
+|Failure|415 Unsupported Media Type|If the client sends a request formatted with an invalid content type, the song will not be modified.|
+
+## Edit a Song - PATCH
+Allows you to edit a subset of attributes of a song. Any attributes unspecified in the request body will remain unchanged.
+
+    PATCH /songs/:song_id
+
+### Request
+##### Path Parameters
+|Name|Type|Description|
+|--|--|--|
+|song_id|String|ID of the song|
+##### Request Body
+Required
+##### Request JSON Attributes
+|Name|Type|Description|Required?|
+|--|--|--|--|
+|title|String|The title of the song.|No|
+|artist|String|The artist of the song.|No|
+|length|Integer|The length of the song in seconds.|No|
+##### Request Body Example
+
+    {
+      "title": "Song 3”
+    }
+
+### Response
+##### Response Body Format
+JSON
+##### Response Statuses
+|Outcome|Status Code|Notes|
+|--|--|--|
+|Success|200 OK||
+|Failure|400 Bad Request|Any of the following reasons will cause the song to not be modified, and 400 status code to be returned: If there are any extraneous attributes; if there are more than 3 attributes; if the JSON syntax in the request is invalid; if the data type of the attribute is invalid; if an attribute string contains unescaped characters; and if an attribute string contains more than 1500 characters.|
+|Failure|404 Not Found|No song with this song_id exists.|
+|Failure|406 Not Acceptable|If the client does not accept a valid content type, the song will not be modified.|
+|Failure|415 Unsupported Media Type|If the client sends a request formatted with an invalid content type, the song will not be modified.|
+
+## Delete a Song
+Allows you to delete a song. If the song being deleted is in a playlist, the song will be removed from the playlist automatically.
+
+    DELETE /songs/:song_id
+
+### Request
+##### Path Parameters
+|Name|Type|Description|
+|--|--|--|
+|song_id|String|ID of the song|
+##### Request Body
+None
+### Response
+##### Response Body Format
+Success: No body
+Failure: JSON
+##### Response Statuses
+|Outcome|Status Code|Notes|
+|--|--|--|
+|Success|204 No Content||
+|Failure|404 Not Found|No song with this song_id exists.|
+
+## Add a Song to a Playlist
+Assigns a load to a boat. Requires a valid JWT token.
+
+    PUT /playlists/:playlist_id/songs/:song_id
+
+### Request
+##### Path Parameters
+|Name|Type|Description|
+|--|--|--|
+|playlist_id|String|ID of the playlist|
+|song_id|String|ID of the song|
+##### Request Body
+None
+### Response
+No body
+##### Response Body Format
+Success: No body 
+Failure: JSON
+##### Response Statuses
+|Outcome|Status Code|Notes|
+|--|--|--|
+|Success|204 No Content|Succeeds only if: a playlist exists with this playlist_id; a song exists with this song_id; the same song with the same song_id is not already in the playlist; and the request is made by the owner of the playlist|
+|Failure|401 Unauthorized|A missing or invalid token will return a 401 status code.|
+|Failure|403 Forbidden|Either the user is not authorized or the song is already added to the playlist.|
+|Failure|404 Not Found|No playlist with this playlist_id exists and/or no song with this song_id exits.|
+
+## Remove a Song from a Playlist
+Removes a song from a playlist. Requires a valid JWT token.
+
+    DELETE /playlists/:playlist_id/songs/:song_id
+
+### Request
+##### Path Parameters
+|Name|Type|Description|
+|--|--|--|
+|playlist_id|String|ID of the playlist|
+|song_id|String|ID of the song|
+##### Request Body
+None
+### Response
+No body
+##### Response Body Format
+Success: No body 
+Failure: JSON
+##### Response Statuses
+|Outcome|Status Code|Notes|
+|--|--|--|
+|Success|204 No Content|Succeeds only if: a playlist exists with this playlist_id; a song exists with this song_id; the song with this song_id is in the playlist; and the request is made by the owner of the playlist|
+|Failure|401 Unauthorized|A missing or invalid token will return a 401 status code.|
+|Failure|403 Forbidden|Either the user is not authorized or the song is not in the playlist.|
+|Failure|404 Not Found|No playlist with this playlist_id exists and/or no song with this song_id exits.|
+
+## List All Songs in a Playlist
+Lists all songs in a playlist that is associated with a user. Requires a valid JWT token.
+
+    GET /playlists/:playlist_id/songs
+
+### Request
+##### Path Parameters
+|Name|Type|Description|
+|--|--|--|
+|playlist_id|String|ID of the playlist|
+##### Request Body
+None
+### Response
+##### Response Body Format
+JSON
+##### Response Statuses
+|Outcome|Status Code|Notes|
+|--|--|--|
+|Success|200 OK||
+|Failure|404 Not Found|No playlist with this playlist_id exists|
+
+## Failure Response Reference
+
+### Status: 400 Bad Request
+
+    {    
+    "Error":  "The request object contains invalid attribute(s)"
+    }
+
+### Status: 401 Unauthorized
+
+    {    
+    "Error":  "Token is either missing or invalid"
+    }
+
+### Status: 403 Forbidden
+The 403 status code may occur when a user attempts to modify or delete another user’s playlist. It may also occur when a user attempts to add song that already exists in their playlist or to remove a song that does not exist in their playlist.
+
+    {    
+    "Error":  "Request is not permitted"
+    }
+
+### Status: 404 Not Found
+
+    {    
+    "Error":  "No item with this id exists"
+    }
+
+### Status: 405 Method Not Allowed
+
+    {    
+    "Error":  "Items must be edited or deleted individually"
+    }
+
+### Status: 406 Not Acceptable
+
+    {    
+    "Error":  "Requested content type is not supported"
+    }
+
+
